@@ -1,0 +1,8 @@
+{
+  "name": "Grace, Grit 'n' Mana",
+  "description": "A high-energy, faith-based fitness and nutrition platform focusing on photo progression, carnivore recipes, and spiritual coaching.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
