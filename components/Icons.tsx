@@ -14,7 +14,24 @@ import {
   Calendar,
   Activity,
   Flame,
-  Check
+  Check,
+  LogOut,
+  User,
+  Lock,
+  Heart,
+  Crown,
+  Cross,
+  Sun,
+  Moon,
+  Star,
+  Shield,
+  Zap,
+  Volume2,
+  VolumeX,
+  AlertTriangle,
+  X,
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 export const Icons = {
@@ -32,5 +49,22 @@ export const Icons = {
   Calendar,
   Activity,
   Flame,
-  Check
+  Check,
+  LogOut,
+  User,
+  Lock,
+  Heart,
+  Crown,
+  Cross,
+  Sun,
+  Moon,
+  Star,
+  Shield,
+  Zap,
+  Volume2,
+  VolumeX,
+  AlertTriangle,
+  X,
+  Plus,
+  Trash2
 };

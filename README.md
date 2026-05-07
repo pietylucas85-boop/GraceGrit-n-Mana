@@ -1,20 +1,25 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Grace, Grit 'n' Mana 🛡️⚔️🥩
 
-# Run and deploy your AI Studio app
+Welcome to the **Grace, Grit 'n' Mana** web application—your ultimate spiritual fire and fitness mentor platform.
 
-This contains everything you need to run your app locally.
+## 🚀 Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1CrupBmEcIE-uKt50qZa9XY2difyI7Hjr
+- **Coach Grace AI:** High-energy, uncompromising encouragement powered by the "HIVE MIND" protocol.
+- **Temple Building (Workouts):** Functional movements with a divine, biblical focus.
+- **Mana Feast (Nutrition):** Nutrient-dense, animal-based (Carnivore/Keto) strength food plans.
+- **Photo Journal:** Stewardship and visual progress tracking.
 
-## Run Locally
+## 🛠️ Local Development
 
-**Prerequisites:**  Node.js
+To run the application locally on your machine:
 
+1. Double click `START_GGM.bat` to launch the local Vite server.
+2. Open your browser to `http://localhost:5174`.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 📡 Deployment to Live Servers
+
+To update the live site at [http://ggm.digi-master.com](http://ggm.digi-master.com):
+
+1. Double click `DEPLOY_LIVE_GGM.bat`.
+2. Wait 60 to 90 seconds for GitHub Actions to build the frontend.
+3. Refresh the live site.

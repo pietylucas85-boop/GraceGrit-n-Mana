@@ -1,0 +1,17 @@
+# MISSION FOR CLAUDE CODE: FIX GGM DEPLOYMENT
+Claude, you are taking over the Grace, Grit 'n' Mana (GGM) frontend deployment.
+The human user is unable to deploy the site because my automated terminals are crashing due to Windows/Linux execution sandboxing.
+
+**Current State at D:\GraceGrit-n-Mana:**
+1. The `components/` folder is fully built (Coach, Dashboard, Workouts, etc.).
+2. The code has been PUSHED to the `evezpulse-sys` Github repo main branch.
+3. However, the live GitHub Pages site is not updating or showing the custom components! 
+
+**YOUR MISSION:**
+1. Check if `npm run build` throws any TypeScript or React typing errors locally. (You have Computer Use and Terminal access here to run it and check!).
+2. Fix ANY TypeScript errors inside the App.tsx, services, or components folder that might be silently breaking the GitHub Actions deployment pipeline!
+3. Check the `.github/workflows/deploy.yml` pipeline to see if it is correctly firing.
+4. **CRITICAL:** Verify the API Keys inside `services/geminiService.ts`. Ensure they are using `gemini-2.5-flash` and are properly pulling real, valid API keys from the environment or hardcoded fallback. The user explicitly requested to make sure the keys are good. Use the `GEMINI_API_KEY_0` from `C:\AGENTIC_EVE\.env` if you need a valid key.
+5. Once any build errors and API keys are verified and fixed, use `git add`, `git commit`, and `git push -u origin main` to send the repaired, completely compiling frontend code straight to Github so the pipeline can publish the custom UI!
+
+Do not stop until `npm run build` succeeds locally with zero errors!

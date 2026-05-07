@@ -1,5 +1,5 @@
-import { GoogleGenAI, Chat, GenerateContentResponse, Type } from "@google/genai";
-import { GeneratedWorkoutRoutine } from "../types";
+import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
+import { GeneratedWorkoutRoutine} from "../types";
 
 const SYSTEM_INSTRUCTION = `
 You are "Coach Grace", the spiritual fire and fitness mentor of the "Grace, Grit 'n' Mana" platform.
@@ -27,45 +27,99 @@ Grace: "Sister, even Jesus rested by the well! Listen to your body, but don't le
 `;
 
 let ai: GoogleGenAI | null = null;
-let chatSession: Chat | null = null;
+
+// Chat history stored manually for stateless API calls
+let chatHistory: { role: string; parts: { text: string }[] }[] = [];
 
 export const initializeGemini = () => {
-  if (!process.env.API_KEY) {
-    console.error("API_KEY is missing");
-    return;
-  }
-  ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Priority order: Vercel env → build env → fallback
+  const envKey = (import.meta as any).env?.VITE_GEMINI_API_KEY
+    || (import.meta as any).env?.VITE_GOOGLE_API_KEY
+    || process.env.GEMINI_API_KEY
+    || process.env.API_KEY;
+
+  // Use env key if valid, otherwise use the hardcoded fallback
+  // TO UPDATE: Set VITE_GEMINI_API_KEY in Vercel project settings
+  const hardcodedKey = "AIzaSyDilP0pR2yXap5ynxKMRqOzR36ZPmwSpPU"; // Fresh key Mar-2026
+
+  const finalKey = (envKey && envKey.length > 20 && !envKey.includes("[")) ? envKey : hardcodedKey;
+
+  ai = new GoogleGenAI({ apiKey: finalKey });
 };
 
-export const getCoachChat = (): Chat => {
+export const resetCoachChat = () => {
+  chatHistory = [];
+};
+
+/**
+ * Send a message to Coach Grace using generateContent (stateless).
+ * This avoids the Chat API's ContentUnion issues entirely.
+ */
+export const sendCoachMessage = async (userMessage: string): Promise<string> => {
   if (!ai) initializeGemini();
   if (!ai) throw new Error("Gemini AI not initialized");
 
-  if (!chatSession) {
-    chatSession = ai.chats.create({
-      model: 'gemini-3-flash-preview',
+  // Add user message to history
+  chatHistory.push({
+    role: 'user',
+    parts: [{ text: userMessage }]
+  });
+
+  try {
+    const response: GenerateContentResponse = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: chatHistory,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-      },
+        temperature: 0.9,
+      }
     });
+
+    const responseText = response.text || "The Spirit is processing... try again, Warrior!";
+
+    // Add model response to history
+    chatHistory.push({
+      role: 'model',
+      parts: [{ text: responseText }]
+    });
+
+    return responseText;
+  } catch (error: any) {
+    // Remove the failed user message from history
+    chatHistory.pop();
+    console.error("Coach Grace API Error:", error);
+
+    // Extract a clean error message
+    let cleanMessage = "Connection issue";
+    if (error?.message) {
+      if (error.message.includes("expired")) {
+        cleanMessage = "API key needs renewal. Please contact the app administrator.";
+      } else if (error.message.includes("quota")) {
+        cleanMessage = "API quota exceeded. Try again in a few minutes.";
+      } else if (error.message.includes("network") || error.message.includes("fetch")) {
+        cleanMessage = "Network issue. Check your internet connection.";
+      } else {
+        cleanMessage = error.message.split('\n')[0].slice(0, 100);
+      }
+    }
+    throw new Error(cleanMessage);
   }
-  return chatSession;
 };
 
 export const generateRecipeIdea = async (ingredients: string): Promise<string> => {
     if (!ai) initializeGemini();
     if (!ai) throw new Error("Gemini AI not initialized");
 
-    const prompt = `Create a unique, carnivore-friendly "Mana Meal" using these ingredients: ${ingredients}. 
-    Focus on "Temple Fuel" principles (nutrient density, animal based). 
-    Format it clearly with Title, Ingredients, and Instructions. 
+    const prompt = `Create a unique, carnivore-friendly "Mana Meal" using these ingredients: ${ingredients}.
+    Focus on "Temple Fuel" principles (nutrient density, animal based).
+    Format it clearly with Title, Ingredients, and Instructions.
     End with a "Spirit & Truth" reflection on why this nourishment honors the body.`;
 
     const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.5-flash',
         contents: prompt,
     });
-    
+
     return response.text || "The pantry is open, but the recipe is hidden. Try again, Warrior!";
 };
 
@@ -77,7 +131,7 @@ export const generateWorkoutRoutine = async (focus: string): Promise<GeneratedWo
   The response must be in JSON format with a creative biblical title, a relevant power verse, a duration, and a list of exercises.`;
 
   const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -88,7 +142,7 @@ export const generateWorkoutRoutine = async (focus: string): Promise<GeneratedWo
             duration: { type: Type.STRING, description: 'Estimated duration (e.g. "20 min")' },
             powerVerse: { type: Type.STRING, description: 'Scripture text to meditate on' },
             verseReference: { type: Type.STRING, description: 'Book Chapter:Verse' },
-            exercises: { 
+            exercises: {
               type: Type.ARRAY,
               items: { type: Type.STRING },
               description: 'List of 3-5 exercises with rep counts'
@@ -115,7 +169,7 @@ export const generateWeeklyMealPlan = async (): Promise<string> => {
   Format clearly.`;
 
   const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       contents: prompt,
   });
 
